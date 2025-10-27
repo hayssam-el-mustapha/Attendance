@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Discipline - Attendance & Behavior Tracking System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blue: #0b63b0;
+            --light: #f5f9fc;
+            --gray: #6b7280;
+            --card: #ffffff;
+            --accent: #e8f5ff;
+            --green: #10b981;
+            --yellow: #f59e0b;
+            --red: #ef4444;
+            --whatsapp: #25D366;
+            --btn-size: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Inter", "Segoe UI", "Arial", sans-serif;
+            background: var(--light);
+            color: #111;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(90deg, var(--blue), #2a86d6);
+            color: white;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            opacity: 0.95;
+        }
+
+        .container {
+            padding: 12px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 12px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+            margin-bottom: 12px;
+        }
+
+        button {
+            background: var(--blue);
+            color: white;
+            border: none;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: var(--btn-size);
+            font-family: "Inter", sans-serif;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        button.secondary {
+            background: transparent;
+            color: var(--blue);
+            border: 1px solid rgba(11,99,176,0.12);
+        }
+
+        button.whatsapp {
+            background: var(--whatsapp);
+        }
+
+        .student-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: var(--accent);
+        }
+
+        .student-name {
+            font-weight: 700;
+        }
+
+        .small {
+            font-size: 13px;
+            color: var(--gray);
+        }
+
+        .input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1e8ff;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 14px;
+            font-family: "Inter", sans-serif;
+        }
+
+        .big-btn {
+            padding: 16px 18px;
+            font-size: 20px;
+            border-radius: 12px;
+        }
+
+        .action-green {
+            background: var(--green);
+        }
+
+        .action-yellow {
+            background: var(--yellow);
+            color: #000;
+        }
+
+        .action-red {
+            background: var(--red);
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.35);
+            z-index: 50;
+            visibility: hidden;
+            opacity: 0;
+            transition: all .18s;
+        }
+
+        .modal.open {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal .modal-card {
+            width: 480px;
+            max-width: 95%;
+            background: white;
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .badge {
+            background: #eef2ff;
+            color: var(--blue);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .logo-large {
+            font-weight: 800;
+            font-size: 16px;
+            color: #a00;
+            background: rgba(255,0,0,0.08);
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .warning-badge {
+            background: #fef3cd;
+            color: #8a6d3b;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .class-section {
+            margin-bottom: 20px;
+            border: 1px solid #eef2f7;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .class-header {
+            background: #f1f5f9;
+            padding: 10px 14px;
+            font-weight: 700;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .class-students {
+            padding: 10px;
+        }
+
+        .multi-select {
+            height: 120px;
+        }
+
+        .whatsapp-icon {
+            font-size: 20px;
+            margin-right: 8px;
+        }
+
+        footer {
+            padding: 12px;
+            text-align: center;
+            color: var(--gray);
+            font-size: 13px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .whatsapp-notice {
+            background: #dcf8c6;
+            border: 1px solid #25d366;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-weight: bold;
+            color: #075e54;
+        }
+
+        .whatsapp-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f0fff4;
+            border: 1px solid #c6f6d5;
+        }
+
+        .whatsapp-option input {
+            width: auto;
+        }
+
+        .phone-warning {
+            color: var(--red);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .msg-log {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--whatsapp);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .success-check {
+            color: var(--green);
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        .sending-status {
+            background: #e8f5ff;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .sending-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .sending-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-pending {
+            color: var(--yellow);
+        }
+
+        .status-sent {
+            color: var(--green);
+        }
+
+        .status-failed {
+            color: var(--red);
+        }
+
+        .report-summary-cards {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .report-summary-card {
+            flex: 1;
+            min-width: 160px;
+            text-align: center;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+        }
+
+        .report-summary-card h3 {
+            font-size: 24px;
+            margin: 0;
+            color: var(--blue);
+        }
+
+        .report-summary-card p {
+            margin: 5px 0 0;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .class-report {
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+        }
+
+        .class-report h4 {
+            color: var(--blue);
+            border-bottom: 2px solid var(--blue);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-family: "Inter", sans-serif;
+        }
+
+        .attendance-table th, .attendance-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-family: "Inter", sans-serif;
+        }
+
+        .attendance-table th {
+            background-color: #f1f5f9;
+            font-weight: bold;
+        }
+
+        .list-group {
+            list-style: none;
+            padding: 0;
+        }
+
+        .list-group-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+        .backup-card {
+            margin-bottom: 15px;
+            border: none;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .backup-card .card-header {
+            background-color: var(--blue);
+            color: white;
+            font-weight: bold;
+        }
+
+        .student-select-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .student-select-item:hover {
+            background-color: #f5f9fc;
+        }
+
+        .student-select-item.selected {
+            background-color: #e8f5ff;
+            border-left: 3px solid var(--blue);
+        }
+
+        .student-select-item input {
+            margin-right: 10px;
+        }
+
+        .whatsapp-single-student {
+            background: #f0fff4;
+            border: 1px solid #c6f6d5;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .big-btn {
+                font-size: 18px;
+                padding: 12px;
+            }
+            .report-summary-cards {
+                flex-direction: column;
+            }
+        }
+        
+        .arabic-name {
+            font-family: "Amiri", serif;
+            direction: rtl;
+        }
+        
+        .english-name {
+            font-family: "Inter", sans-serif;
+            direction: ltr;
+        }
+        
+        .arabic-btn {
+            font-family: "Amiri", serif;
+            direction: rtl;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="title">الانضباط الذكي</div>
+                    <div class="subtitle">نظام متابعة الحضور والسلوك </div>
+                </div>
+                <div class="header-badge">Version:English/Arabic - v1.0</div>
+            </div>
+            <div class="header-quote"> «إذا كان الممتاز ممكناً              فالجيّد غير مقبول»</div>
+        </div>
+    </header>
+ 
+    <div class="container">
+        <div class="grid">
+            <main>
+                <div class="card">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button class="big-btn arabic-btn" onclick="showPanel('dashboard')">لوحة القيادة</button>
+                        <button class="big-btn arabic-btn" onclick="showPanel('classes')">إدارة الصفوف</button>
+                        <button class="big-btn arabic-btn" onclick="showPanel('attendance')">الحضور والغياب</button>
+                        <button class="big-btn arabic-btn" onclick="showPanel('behavior')">تسجيل السلوك</button>
+                        <button class="big-btn arabic-btn" onclick="showPanel('reports')">التقارير</button>
+                        <button class="big-btn arabic-btn" onclick="showPanel('parents')">إرسال رسالة</button>
+                        <button class="big-btn arabic-btn" onclick="showPanel('backup')">النسخ الاحتياطي</button>
+                    </div>
+                </div>
+
+                <div id="panels">
+                    <!-- Dashboard Panel -->
+                    <div id="dashboard" class="card panel">
+                        <div class="flex-between">
+                            <h3>Dashboard</h3>
+                            <div class="small">Date: <span id="today-date"></span></div>
+                        </div>
+                        <p class="small">Quick overview of the day: Total attendance, late arrivals, absences, and behavior.</p>
+                        <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+                            <div class="card" style="flex:1; min-width:160px; text-align:center;">
+                                <div style="font-size:26px; font-weight:800;" id="summary-present">0</div>
+                                <div class="small">Today's Attendance</div>
+                            </div>
+                            <div class="card" style="flex:1; min-width:160px; text-align:center;">
+                                <div style="font-size:26px; font-weight:800;" id="summary-late">0</div>
+                                <div class="small">Today's Late</div>
+                            </div>
+                            <div class="card" style="flex:1; min-width:160px; text-align:center;">
+                                <div style="font-size:26px; font-weight:800;" id="summary-absent">0</div>
+                                <div class="small">Today's Absence</div>
+                            </div>
+                            <div class="card" style="flex:1; min-width:160px; text-align:center;">
+                                <div style="font-size:26px; font-weight:800;" id="summary-warnings">0</div>
+                                <div class="small">Absence Warnings</div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+                            <button onclick="showPanel('classes')" class="big-btn action-green arabic-btn">إدارة الصفوف</button>
+                            <button class="secondary big-btn arabic-btn" onclick="softReset()">تصفير اليوم (بدون حذف)</button>
+                            <button class="secondary big-btn arabic-btn" onclick="hardReset()">مسح كامل (كل شيء)</button>
+                            <input id="search" class="input" placeholder="Search by student name..." style="max-width:320px;" oninput="searchStudent()" />
+                        </div>
+
+                        <h4 style="margin-top:14px;">Students with 10+ Absence Days</h4>
+                        <div id="warning-students"></div>
+
+                        <h4 style="margin-top:14px;">Students with Low Points (5 points or less)</h4>
+                        <div id="low-points-students"></div>
+
+                        <h4 style="margin-top:14px;">Students by Class</h4>
+                        <div id="students-by-class"></div>
+                    </div>
+
+                    <!-- Message Panel -->
+                    <div id="parents" class="card panel" style="display:none;">
+                        <h3>Send Message to Parents via WhatsApp</h3>
+                        <div class="whatsapp-notice">
+                            <span>📱 This system uses WhatsApp only for sending messages</span>
+                        </div>
+                        <p class="small">Select a student then send a message individually. You can send a quick message to parents about absence/late/warning via WhatsApp directly.</p>
+                        
+                        <div class="whatsapp-single-student">
+                            <h4>Select a Single Student</h4>
+                            <select id="single-student-select" class="input" onchange="updateSingleStudentMessage()">
+                                <option value="">-- Select Student --</option>
+                            </select>
+                            
+                            <div id="single-student-info" style="margin-top: 10px; display: none;">
+                                <div class="small">
+                                    <strong>Student:</strong> <span id="selected-student-name" class="english-name"></span>
+                                </div>
+                                <div class="small">
+                                    <strong>Class:</strong> <span id="selected-student-class"></span>
+                                </div>
+                                <div class="small">
+                                    <strong>Parent Phone:</strong> <span id="selected-student-phone"></span>
+                                    <span id="phone-status" class="badge" style="margin-left: 8px;"></span>
+                                </div>
+                                <div class="small">
+                                    <strong>Today's Status:</strong> 
+                                    <span id="selected-student-status"></span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 10px;">
+                                <select id="single-message-type" class="input" onchange="updateSingleStudentMessage()">
+                                    <option value="absence">Absence Notification</option>
+                                    <option value="late">Late Notification</option>
+                                    <option value="misconduct">Misconduct Notice</option>
+                                    <option value="notice">Behavioral Notice</option>
+                                    <option value="custom">Custom Message</option>
+                                </select>
+                            </div>
+                            
+                            <textarea id="single-message-text" rows="4" class="input" placeholder="Message text..." style="margin-top: 10px; font-family: 'Amiri', serif; direction: rtl;"></textarea>
+                            
+                            <button onclick="sendSingleWhatsApp()" class="big-btn whatsapp arabic-btn" style="margin-top: 10px; width: 100%;">
+                                إرسال عبر واتساب <span class="whatsapp-icon">📱</span>
+                            </button>
+                        </div>
+
+                        <h4 style="margin-top:20px;">Sent Messages Log</h4>
+                        <div id="parent-log" class="msg-log"></div>
+                    </div>
+
+                    <!-- Classes Management Panel -->
+                    <div id="classes" class="card panel" style="display:none;">
+                        <h3>Classes Management</h3>
+                        <p class="small">Add and manage classes.</p>
+                        
+                        <div style="display:flex; gap:8px; margin-top:12px;">
+                            <button onclick="openAddClassModal()" class="big-btn action-green arabic-btn">إضافة صف جديد</button>
+                        </div>
+                        
+                        <h4 style="margin-top:14px;">Classes List</h4>
+                        <div id="classes-list"></div>
+                        
+                        <h4 style="margin-top:14px;">Students in Selected Class</h4>
+                        <div id="class-students"></div>
+                    </div>
+
+                    <!-- Attendance Panel -->
+                    <div id="attendance" class="card panel" style="display:none;">
+                        <h3>Attendance Registration</h3>
+                        <p class="small">Select a class then mark attendance quickly. You can modify attendance during the day.</p>
+                        <div style="display:flex; gap:8px; margin-top:8px;">
+                            <select id="class-select" class="input" onchange="loadStudents()"></select>
+                            <button onclick="markAllPresent()" class="big-btn action-green arabic-btn">وضع الكل حاضر</button>
+                        </div>
+                        <div id="attendance-students" style="margin-top:10px;"></div>
+                        <div style="margin-top:8px;">
+                            <button onclick="saveAttendance()" class="big-btn arabic-btn">حفظ الحضور اليومي</button>
+                            <span class="small" style="margin-left:8px;">Date: <span id="today-date-2"></span></span>
+                        </div>
+                    </div>
+
+                    <!-- Behavior Tracking Panel -->
+                    <div id="behavior" class="card panel" style="display:none;">
+                        <h3>Behavior Tracking</h3>
+                        <p class="small">Select a student and record behavior (positive/negative) with a note. Points are not affected by absence or lateness.</p>
+                        <div style="display:flex; gap:8px; margin-top:8px;">
+                            <select id="behavior-student" class="input"></select>
+                            <select id="behavior-type" class="input">
+                                <option value="positive">Positive Behavior (+2)</option>
+                                <option value="misconduct">Misconduct (-2)</option>
+                            </select>
+                        </div>
+                        <textarea id="behavior-note" rows="3" class="input" placeholder="Note (optional)"></textarea>
+                        <div style="margin-top:8px;">
+                            <button onclick="addBehavior()" class="big-btn action-green arabic-btn">تسجيل السلوك</button>
+                        </div>
+
+                        <h4 style="margin-top:12px;">Recent Behavior Log</h4>
+                        <div id="behavior-log" class="msg-log"></div>
+                    </div>
+
+                    <!-- Reports Panel -->
+                    <div id="reports" class="card panel" style="display:none;">
+                        <h3>Reports & Statistics</h3>
+                        <p class="small">Daily and monthly reports that can be exported in English.</p>
+                        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+                            <button onclick="exportReport()" class="big-btn arabic-btn">تصدير تقرير اليوم (CSV)</button>
+                            <button onclick="exportReportPDF()" class="big-btn action-green arabic-btn">تصدير تقرير اليوم (PDF)</button>
+                            <button onclick="exportMonthCSV()" class="big-btn arabic-btn">تصدير جدول الشهر الحالي (CSV)</button>
+                            <button onclick="exportMonthlyPDF()" class="big-btn action-green arabic-btn">تصدير تقرير شهري (PDF)</button>
+                            <button onclick="exportBehaviorReportPDF()" class="big-btn arabic-btn">تصدير تقرير سلوك (PDF)</button>
+                            <button onclick="exportComprehensiveReportPDF()" class="big-btn action-green arabic-btn">تصدير تقرير شامل (PDF)</button>
+                            <button onclick="clearMonthlyLogs()" class="secondary big-btn arabic-btn">مسح سجلات شهرية</button>
+                        </div>
+                        
+                        <h4 style="margin-top:12px;">View Monthly Table (Select Class & Month)</h4>
+                        <div style="display:flex; gap:8px; margin-top:6px;">
+                            <select id="report-class" class="input"></select>
+                            <input id="report-month" type="month" class="input" />
+                            <button class="big-btn arabic-btn" onclick="renderMonthlyTable()">عرض الجدول</button>
+                        </div>
+                        <div id="monthly-table" style="margin-top:12px; overflow:auto;"></div>
+                        
+                        <h4 style="margin-top:12px;">Student Behavior Report</h4>
+                        <div style="display:flex; gap:8px; margin-top:6px;">
+                            <select id="behavior-report-student" class="input"></select>
+                            <button class="big-btn arabic-btn" onclick="generateBehaviorReport()">عرض التقرير</button>
+                        </div>
+                        <div id="behavior-report" class="behavior-report"></div>
+                        
+                        <h4 style="margin-top:12px;">Comprehensive Daily Report</h4>
+                        <div id="comprehensive-report"></div>
+                        
+                        <h4 style="margin-top:12px;">Quick Summary</h4>
+                        <div id="report-summary"></div>
+                    </div>
+
+                    <!-- Backup Panel -->
+                    <div id="backup" class="card panel" style="display:none;">
+                        <h3>Backup & Restore</h3>
+                        <p class="small">Save and restore system data.</p>
+                        
+                        <div class="report-summary-cards">
+                            <div class="backup-card" style="flex: 1;">
+                                <div class="card-header">Export Data</div>
+                                <div class="card-body">
+                                    <p>Save a backup of all your data to your device.</p>
+                                    <button onclick="exportBackup()" class="big-btn action-green arabic-btn w-100">تصدير البيانات</button>
+                                </div>
+                            </div>
+                            
+                            <div class="backup-card" style="flex: 1;">
+                                <div class="card-header">Import Data</div>
+                                <div class="card-body">
+                                    <p>Restore data from a previous backup.</p>
+                                    <input type="file" id="import-file" class="input" accept=".json" style="margin-bottom: 10px;">
+                                    <button onclick="importBackup()" class="big-btn arabic-btn w-100" id="import-data" disabled>استيراد البيانات</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="backup-card">
+                            <div class="card-header">Storage Management</div>
+                            <div class="card-body">
+                                <p>Local Storage Status: <span id="storage-status" class="badge" style="background: var(--green); color: white;">Working</span></p>
+                                <div class="small" style="margin-top: 10px;">
+                                    <p>Total Classes: <span id="backup-classes-count">0</span></p>
+                                    <p>Total Students: <span id="backup-students-count">0</span></p>
+                                    <p>Total Attendance Records: <span id="backup-records-count">0</span></p>
+                                </div>
+                                <button onclick="clearAllData()" class="big-btn action-red arabic-btn" style="margin-top: 10px;">مسح جميع البيانات</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <aside class="right-col">
+                <div class="card sidebar">
+                    <h4>Quick Settings</h4>
+                    <label class="small">Search Student</label>
+                    <input id="search2" class="input" placeholder="Student name..." oninput="searchStudentSidebar()" />
+                    <div style="margin-top:8px;">
+                        <button onclick="showPanel('classes')" class="big-btn action-green arabic-btn">إدارة الصفوف</button>
+                        <button class="secondary big-btn arabic-btn" onclick="softReset()">تصفير اليوم</button>
+                        <button class="secondary big-btn arabic-btn" onclick="hardReset()">مسح كامل</button>
+                    </div>
+                    <div style="margin-top:12px;">
+                        <h5>Quick Statistics</h5>
+                        <div class="small">Total Students: <span id="total-students">0</span></div>
+                        <div class="small">Total Classes: <span id="total-classes">0</span></div>
+                        <div class="small">Students with Warnings: <span id="total-warnings">0</span></div>
+                        <div class="small">Students with Low Points: <span id="total-low-points">0</span></div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:12px;">
+                    <h4>Quick Instructions</h4>
+                    <ol style="padding-left:16px; margin:6px 0;">
+                        <li class="small">Base points for each student: 20 points</li>
+                        <li class="small">Points are only deducted through negative behavior (misconduct)</li>
+                        <li class="small">Absence and lateness do not affect points</li>
+                        <li class="small">Parents are notified when a student reaches 5 points or less</li>
+                        <li class="small">Attendance can be modified during the day</li>
+                        <li class="small">Messages are sent via WhatsApp only</li>
+                    </ol>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <footer>
+        "Smart Discipline" System - A customizable model for your school.
+    </footer>
+
+    <!-- Modal Add/Edit Student -->
+    <div id="modal" class="modal" role="dialog" aria-hidden="true">
+        <div class="modal-card card">
+            <h3 id="modal-title">Add Student</h3>
+            <label class="small">Full Name (English)</label>
+            <input id="m-name" class="input" />
+            <label class="small">Arabic Name (for messages)</label>
+            <input id="m-arabic-name" class="input" placeholder="Name in Arabic for WhatsApp messages" />
+            <label class="small">Class</label>
+            <select id="m-class" class="input"></select>
+            <label class="small">Parent Phone</label>
+            <input id="m-phone" class="input" placeholder="Example: +96170123456" />
+            <div class="small">Number must start with +961 followed by 8 digits</div>
+            <div style="display:flex; gap:8px; margin-top:10px; justify-content:flex-end;">
+                <button onclick="saveModal()" class="big-btn action-green arabic-btn">حفظ</button>
+                <button onclick="closeModal()" class="secondary big-btn arabic-btn">إلغاء</button>
+            </div>
+            <div id="delete-block" style="margin-top:10px; display:none; justify-content:flex-end;">
+                <button onclick="deleteStudent()" class="big-btn action-red arabic-btn">حذف الطالب</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add/Edit Class -->
+    <div id="modal-class" class="modal" role="dialog" aria-hidden="true">
+        <div class="modal-card card">
+            <h3 id="modal-class-title">Add Class</h3>
+            <label class="small">Class Name</label>
+            <input id="mc-name" class="input" />
+            <label class="small">Class ID (Short)</label>
+            <input id="mc-id" class="input" />
+            <div style="display:flex; gap:8px; margin-top:10px; justify-content:flex-end;">
+                <button onclick="saveClassModal()" class="big-btn action-green arabic-btn">حفظ</button>
+                <button onclick="closeClassModal()" class="secondary big-btn arabic-btn">إلغاء</button>
+            </div>
+            <div id="delete-class-block" style="margin-top:10px; display:none; justify-content:flex-end;">
+                <button onclick="deleteClass()" class="big-btn action-red arabic-btn">حذف الصف</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+
+        // System variables
+        let editId = null;
+        let editClassId = null;
+
+        const STORAGE_KEY = "smart_discipline_v10_en";
+        const defaultData = {
+            classes: [
+                { id: "TS2", name: "TS2 - Car Mechanics" }
+            ],
+            students: [
+                {id:1, name:"Haitham Al-Mustafa", arabicName:"هيثم المصطفى", class:"TS2", phone:"+96170587033", points:20, present:false, late:0, absent:0, totalAbsent:0, attendanceDate: null, lastAbsentDate: null},
+                {id:2, name:"Rukia Nafeh", arabicName:"رقية نافع", class:"TS2", phone:"+96170905122", points:20, present:false, late:0, absent:0, totalAbsent:0, attendanceDate: null, lastAbsentDate: null},
+                {id:3, name:"Riyad Dnawi", arabicName:"رياض ضناوي", class:"TS2", phone:"+96170081903", points:20, present:false, late:0, absent:0, totalAbsent:0, attendanceDate: null, lastAbsentDate: null}
+            ],
+            behaviors: [],
+            messages: [],
+            monthlyLogs: {},
+            lastDate: null
+        };
+
+        // ========== Basic Functions ==========
+        function getCurrentDate() {
+            const now = new Date();
+            return now.toISOString().split('T')[0];
+        }
+
+        function formatDateForDisplay(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function isValidPhone(phone) {
+            if (!phone) return false;
+            const phoneRegex = /^\+961\d{8}$/;
+            return phoneRegex.test(phone);
+        }
+
+        function cleanPhoneForWhatsApp(phone) {
+            if (!phone) return '';
+            return phone.replace('+', '');
+        }
+
+        function loadData(){ 
+            try{ 
+                const raw = localStorage.getItem(STORAGE_KEY); 
+                if(raw) return JSON.parse(raw); 
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData)); 
+                return JSON.parse(JSON.stringify(defaultData)); 
+            }catch(e){ 
+                console.error(e); 
+                return JSON.parse(JSON.stringify(defaultData)); 
+            } 
+        }
+
+        function saveData(data){ 
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); 
+            renderAll(); 
+            updateBackupStats();
+        }
+
+        function getData(){ 
+            return loadData(); 
+        }
+
+        function dailyRolloverIfNeeded(){ 
+            const data = getData(); 
+            const today = getCurrentDate();
+            if(data.lastDate && data.lastDate !== today){ 
+                saveDayToMonthly(data.lastDate); 
+                data.students.forEach(s => { 
+                    s.present = false; 
+                    s.late = 0; 
+                    s.absent = 0; 
+                    s.attendanceDate = null;
+                }); 
+                data.behaviors = []; 
+                data.messages = []; 
+                data.lastDate = today; 
+                saveData(data); 
+                return; 
+            } 
+            if(!data.lastDate){ 
+                data.lastDate = today; 
+                saveData(data); 
+            } 
+        }
+
+        function saveDayToMonthly(dateISO){ 
+            const data = getData(); 
+            const day = new Date(dateISO).getDate(); 
+            const yyyy_mm = dateISO.slice(0,7); 
+            data.monthlyLogs = data.monthlyLogs || {}; 
+            data.students.forEach(s => { 
+                const cls = s.class || "TS2"; 
+                data.monthlyLogs[cls] = data.monthlyLogs[cls] || {}; 
+                data.monthlyLogs[cls][yyyy_mm] = data.monthlyLogs[cls][yyyy_mm] || {}; 
+                data.monthlyLogs[cls][yyyy_mm][String(day)] = data.monthlyLogs[cls][yyyy_mm][String(day)] || {}; 
+                let status = 'Present'; 
+                if((s.absent||0) > 0) status = 'Absent'; 
+                else if((s.late||0) > 0) status = 'Late'; 
+                data.monthlyLogs[cls][yyyy_mm][String(day)][s.id] = status; 
+            }); 
+            saveData(data); 
+        }
+
+        // ========== UI Functions ==========
+        function renderAll(){ 
+            const data = getData(); 
+            document.getElementById("total-students").innerText = data.students.length; 
+            document.getElementById("total-classes").innerText = data.classes.length; 
+            
+            updateClassSelects(data);
+            updateSingleStudentSelect(data);
+            
+            const list = document.getElementById("students-by-class"); 
+            list.innerHTML = ""; 
+            let present=0, late=0, absent=0, warnings=0, lowPoints=0; 
+            
+            const warningList = document.getElementById("warning-students");
+            warningList.innerHTML = "";
+            
+            const lowPointsList = document.getElementById("low-points-students");
+            lowPointsList.innerHTML = "";
+            
+            data.students.forEach(s=>{ 
+                if (s.absent > 0) {
+                    s.totalAbsent = (s.totalAbsent || 0) + s.absent;
+                }
+                
+                if (s.totalAbsent >= 10) {
+                    warnings++;
+                    const warningDiv = document.createElement("div");
+                    warningDiv.className = "student-row";
+                    warningDiv.style.background = "#fee2e2";
+                    warningDiv.innerHTML = `
+                        <div>
+                            <div class="student-name english-name">${s.name} <span class="warning-badge">Warning: ${s.totalAbsent} absence days</span></div>
+                            <div class="small">${s.class} • Points: ${s.points} • Late: ${s.late} • Absent: ${s.absent}</div>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="big-btn action-green arabic-btn" onclick="setAttendance(${s.id}, 'present')">حاضر</button>
+                            <button class="secondary big-btn arabic-btn" onclick="openEditModal(${s.id})">تعديل</button>
+                        </div>
+                    `;
+                    warningList.appendChild(warningDiv);
+                }
+                
+                if (s.points <= 5) {
+                    lowPoints++;
+                    const lowPointsDiv = document.createElement("div");
+                    lowPointsDiv.className = "student-row";
+                    lowPointsDiv.style.background = "#fef3c7";
+                    lowPointsDiv.innerHTML = `
+                        <div>
+                            <div class="student-name english-name">${s.name} <span class="warning-badge">Low Points: ${s.points}</span></div>
+                            <div class="small">${s.class} • Points: ${s.points} • Late: ${s.late} • Absent: ${s.absent}</div>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="secondary big-btn arabic-btn" onclick="openEditModal(${s.id})">تعديل</button>
+                        </div>
+                    `;
+                    lowPointsList.appendChild(lowPointsDiv);
+                }
+                
+                if(s.present) present++; 
+                late += (s.late||0); 
+                absent += (s.absent||0); 
+            }); 
+            
+            document.getElementById("total-warnings").innerText = warnings;
+            document.getElementById("total-low-points").innerText = lowPoints;
+            
+            data.classes.forEach(c => {
+                const classSection = document.createElement("div");
+                classSection.className = "class-section";
+                
+                const classHeader = document.createElement("div");
+                classHeader.className = "class-header";
+                classHeader.innerText = c.name;
+                classSection.appendChild(classHeader);
+                
+                const studentsContainer = document.createElement("div");
+                studentsContainer.className = "class-students";
+                
+                const classStudents = data.students.filter(s => s.class === c.id);
+                classStudents.forEach(s => {
+                    const studentRow = document.createElement("div");
+                    studentRow.className = "student-row";
+                    
+                    const today = getCurrentDate();
+                    const isAttendanceRecorded = s.attendanceDate === today;
+                    
+                    studentRow.innerHTML = `
+                        <div>
+                            <div class="student-name english-name">${s.name} 
+                                ${s.totalAbsent >= 10 ? '<span class="warning-badge">Absence Warning</span>' : ''}
+                                ${s.points <= 5 ? '<span class="warning-badge">Low Points</span>' : ''}
+                            </div>
+                            <div class="small">${s.class} • Points: ${s.points} • Late: ${s.late} • Absent: ${s.absent} • Total Absences: ${s.totalAbsent || 0}</div>
+                            ${isAttendanceRecorded ? '<div class="small" style="color: var(--red);">Attendance recorded today</div>' : ''}
+                        </div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="big-btn action-green arabic-btn" onclick="setAttendance(${s.id}, 'present')">${isAttendanceRecorded && s.present ? 'تعديل حاضر' : 'حاضر'}</button>
+                            <button class="big-btn action-yellow arabic-btn" onclick="setAttendance(${s.id}, 'late')">${isAttendanceRecorded && s.late > 0 ? 'تعديل متأخر' : 'متأخر'}</button>
+                            <button class="big-btn action-red arabic-btn" onclick="setAttendance(${s.id}, 'absent')">${isAttendanceRecorded && s.absent > 0 ? 'تعديل غائب' : 'غائب'}</button>
+                            <button class="secondary big-btn arabic-btn" onclick="openEditModal(${s.id})">تعديل</button>
+                        </div>
+                    `;
+                    studentsContainer.appendChild(studentRow);
+                });
+                
+                classSection.appendChild(studentsContainer);
+                list.appendChild(classSection);
+            });
+            
+            document.getElementById("summary-present").innerText = present; 
+            document.getElementById("summary-late").innerText = late; 
+            document.getElementById("summary-absent").innerText = absent; 
+            document.getElementById("summary-warnings").innerText = warnings;
+            
+            const att = document.getElementById("attendance-students"); 
+            att.innerHTML = ""; 
+            const selectedClass = document.getElementById("class-select").value;
+            const classStudents = data.students.filter(s => s.class === selectedClass);
+            
+            classStudents.forEach(s=>{ 
+                const today = getCurrentDate();
+                const isAttendanceRecorded = s.attendanceDate === today;
+                
+                const row = document.createElement("div"); 
+                row.style.display="flex"; 
+                row.style.justifyContent="space-between"; 
+                row.style.marginBottom="10px"; 
+                row.innerHTML = `
+                    <div style="flex:1">
+                        <strong class="english-name">${s.name}</strong>
+                        <div class="small">${s.class} • Total Absences: ${s.totalAbsent || 0}</div>
+                        ${isAttendanceRecorded ? '<div class="small" style="color: var(--red);">Attendance recorded today</div>' : ''}
+                    </div> 
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;"> 
+                        <button class="big-btn action-green arabic-btn" onclick="setAttendance(${s.id}, 'present')">${isAttendanceRecorded && s.present ? 'تعديل حاضر' : 'حاضر'}</button> 
+                        <button class="big-btn action-yellow arabic-btn" onclick="setAttendance(${s.id}, 'late')">${isAttendanceRecorded && s.late > 0 ? 'تعديل متأخر' : 'متأخر'}</button> 
+                        <button class="big-btn action-red arabic-btn" onclick="setAttendance(${s.id}, 'absent')">${isAttendanceRecorded && s.absent > 0 ? 'تعديل غائب' : 'غائب'}</button> 
+                    </div>
+                `; 
+                att.appendChild(row); 
+            }); 
+            
+            const sel = document.getElementById("behavior-student"); 
+            const behaviorReportStudent = document.getElementById("behavior-report-student");
+            sel.innerHTML=""; 
+            behaviorReportStudent.innerHTML = "";
+            
+            data.students.forEach(s=>{ 
+                const opt = document.createElement("option"); 
+                opt.value = s.id; 
+                opt.text = `${s.name} • ${s.class}`; 
+                sel.appendChild(opt);
+                
+                const opt2 = document.createElement("option"); 
+                opt2.value = s.id; 
+                opt2.text = `${s.name} • ${s.class}`; 
+                behaviorReportStudent.appendChild(opt2);
+            }); 
+            
+            const blog = document.getElementById("behavior-log"); 
+            blog.innerHTML = ""; 
+            data.behaviors.slice(-50).reverse().forEach(b=>{ 
+                const p = document.createElement("div"); 
+                p.className="small"; 
+                p.style.padding="6px"; 
+                p.innerText = `${b.time} • ${b.studentName} • ${b.typeText} • ${b.note||''}`; 
+                blog.appendChild(p); 
+            }); 
+            
+            const plog = document.getElementById("parent-log"); 
+            plog.innerHTML = ""; 
+            (data.messages || []).slice(-50).reverse().forEach(m=>{ 
+                const p = document.createElement("div"); 
+                p.className="small"; 
+                p.style.padding="6px"; 
+                p.innerText = `${m.time} • To parent of ${m.studentName} • ${m.type} • ${m.text}`; 
+                plog.appendChild(p); 
+            }); 
+            
+            document.getElementById("report-summary").innerHTML = `<div class="small">Today's Total: Present ${present} — Late ${late} — Absent ${absent} — Warnings ${warnings} — Low Points ${lowPoints}</div>`; 
+            document.getElementById("today-date").innerText = formatDateForDisplay(getCurrentDate()); 
+            document.getElementById("today-date-2").innerText = formatDateForDisplay(getCurrentDate()); 
+            
+            renderClassesPanel(data);
+            generateComprehensiveReport();
+        } 
+
+        function updateClassSelects(data) {
+            const classSelects = [
+                document.getElementById("class-select"),
+                document.getElementById("m-class"),
+                document.getElementById("report-class")
+            ];
+            
+            classSelects.forEach(select => {
+                if (select) {
+                    select.innerHTML = "";
+                    data.classes.forEach(c => {
+                        const opt = document.createElement("option");
+                        opt.value = c.id;
+                        opt.text = c.name;
+                        select.appendChild(opt);
+                    });
+                }
+            });
+        }
+
+        function updateSingleStudentSelect(data) {
+            const select = document.getElementById("single-student-select");
+            select.innerHTML = '<option value="">-- Select Student --</option>';
+            
+            data.students.forEach(s => {
+                const opt = document.createElement("option");
+                opt.value = s.id;
+                opt.text = `${s.name} • ${s.class}`;
+                select.appendChild(opt);
+            });
+        }
+
+        function updateSingleStudentMessage() {
+            const studentId = document.getElementById("single-student-select").value;
+            const messageType = document.getElementById("single-message-type").value;
+            const textarea = document.getElementById("single-message-text");
+            
+            if (!studentId) {
+                document.getElementById("single-student-info").style.display = "none";
+                return;
+            }
+            
+            const data = getData();
+            const student = data.students.find(s => s.id == studentId);
+            
+            if (!student) return;
+            
+            // Update student information
+            document.getElementById("selected-student-name").textContent = student.name;
+            document.getElementById("selected-student-class").textContent = student.class;
+            document.getElementById("selected-student-phone").textContent = student.phone || "Not available";
+            
+            // Update phone status
+            const phoneStatus = document.getElementById("phone-status");
+            if (student.phone && isValidPhone(student.phone)) {
+                phoneStatus.textContent = "Valid";
+                phoneStatus.style.background = "var(--green)";
+            } else {
+                phoneStatus.textContent = "Invalid";
+                phoneStatus.style.background = "var(--red)";
+            }
+            
+            // Update today's status
+            const statusElement = document.getElementById("selected-student-status");
+            let status = "Not recorded";
+            let statusColor = "var(--gray)";
+            
+            if (student.present) {
+                status = "Present";
+                statusColor = "var(--green)";
+            } else if (student.late > 0) {
+                status = "Late";
+                statusColor = "var(--yellow)";
+            } else if (student.absent > 0) {
+                status = "Absent";
+                statusColor = "var(--red)";
+            }
+            
+            statusElement.textContent = status;
+            statusElement.style.color = statusColor;
+            statusElement.style.fontWeight = "bold";
+            
+            document.getElementById("single-student-info").style.display = "block";
+            
+            // Update default message text (in Arabic)
+            const date = formatDateForDisplay(getCurrentDate());
+            let message = "";
+            
+            // Get Arabic name for the message
+            const arabicName = student.arabicName || student.name;
+            
+            switch(messageType) {
+                case "absence":
+                    message = `إخطار غياب\n\n`;
+                    message += `معهد خريبة الجندي الفني\n`;
+                    message += `التاريخ: ${date}\n\n`;
+                    message += `السيد/ة ولي أمر الطالب ${arabicName}\n`;
+                    message += `نُعلمكم أن ابنكم/ابنتكم غائب/ة اليوم.\n`;
+                    message += `نرجو التواصل مع إدارة المعهد لتوضيح سبب الغياب.\n\n`;
+                    message += `ملاحظة: كل يوم غياب غير مبرر سوف ينقص من علامة السلوك\n\n`;
+                    message += `إدارة المعهد`;
+                    break;
+                    
+                case "late":
+                    message = `إخطار تأخير\n\n`;
+                    message += `معهد خريبة الجندي الفني\n`;
+                    message += `التاريخ: ${date}\n\n`;
+                    message += `السيد/ة ولي أمر الطالب ${arabicName}\n`;
+                    message += `نُعلمكم أن ابنكم/ابنتكم تأخر/ت اليوم عن الحضور إلى المعهد.\n`;
+                    message += `نرجو الالتزام بمواعيد الحضور المحددة.\n\n`;
+                    message += `ملاحظة: كل يوم تأخير غير مبرر سوف ينقص من علامة السلوك\n\n`;
+                    message += `إدارة المعهد`;
+                    break;
+                    
+                case "misconduct":
+                    message = `إشعار مشاغبة\n\n`;
+                    message += `التاريخ: ${date}\n\n`;
+                    message += `السيد/ة ولي أمر الطالب ${arabicName}\n`;
+                    message += `نُعلمكم أنه تم تسجيل ملاحظة سلوكية سلبية لابنكم/ابنتكم.\n`;
+                    message += `نرجو التواصل مع إدارة المعهد لمناقشة السلوك وتحسينه.\n\n`;
+                    message += ` إدارة المعهد`;
+                    break;
+                    
+                case "notice":
+                    message = `تنبيه سلوكي\n\n`;
+                    message += `التاريخ: ${date}\n\n`;
+                    message += `السيد/ة ولي أمر الطالب ${arabicName}\n`;
+                    message += `نُعلمكم بوجود ملاحظة حول سلوك ابنكم/ابنتكم.\n`;
+                    message += `نرجو المتابعة مع إدارة المدرسة.\n\n`;
+                    message += ` إدارة المعهد`;
+                    break;
+                    
+                case "custom":
+                    message = `رسالة من معهد خريبة الجندي الفني\n\n`;
+                    message += `التاريخ: ${date}\n\n`;
+                    message += `السيد/ة ولي أمر الطالب ${arabicName}\n\n`;
+                    break;
+            }
+            
+            textarea.value = message;
+        }
+
+        function sendSingleWhatsApp() {
+            const studentId = document.getElementById("single-student-select").value;
+            const messageText = document.getElementById("single-message-text").value.trim();
+            
+            if (!studentId) {
+                alert('Please select a student first');
+                return;
+            }
+            
+            if (!messageText) {
+                alert('Please write the message text first');
+                return;
+            }
+            
+            const data = getData();
+            const student = data.students.find(s => s.id == studentId);
+            
+            if (!student) {
+                alert('Student not found');
+                return;
+            }
+            
+            if (!student.phone || !isValidPhone(student.phone)) {
+                alert('Parent phone number is not valid for sending messages');
+                return;
+            }
+            
+            const cleanPhone = cleanPhoneForWhatsApp(student.phone);
+            const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(messageText)}`;
+            
+            // Open WhatsApp in a new window
+            window.open(whatsappUrl, '_blank');
+            
+            // Save message to log
+            const msg = {
+                studentId: student.id,
+                studentName: student.name,
+                type: document.getElementById("single-message-type").value,
+                text: messageText,
+                time: new Date().toLocaleString('en-US')
+            };
+            data.messages = data.messages || [];
+            data.messages.push(msg);
+            saveData(data);
+            
+            alert('WhatsApp has been opened to send the message. Please complete the sending process in the opened window.');
+        }
+
+        // ========== Enhanced PDF Functions for English ==========
+        function exportReportPDF() {
+            try {
+                const data = getData();
+                const today = formatDateForDisplay(getCurrentDate());
+                
+                const doc = new jsPDF();
+                
+                doc.setFontSize(18);
+                doc.setTextColor(11, 99, 176);
+                doc.text('Daily Attendance Report', 105, 20, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Date: ${today}`, 105, 30, { align: 'center' });
+                
+                const tableData = [];
+                data.students.forEach(s => {
+                    let status = 'Present';
+                    if (s.absent > 0) status = 'Absent';
+                    else if (s.late > 0) status = 'Late';
+                    
+                    tableData.push([
+                        s.id.toString(),
+                        s.name,
+                        s.class,
+                        (s.points || 20).toString(),
+                        status,
+                        (s.late || 0).toString(),
+                        (s.absent || 0).toString(),
+                        (s.totalAbsent || 0).toString()
+                    ]);
+                });
+                
+                doc.autoTable({
+                    startY: 40,
+                    head: [[
+                        'ID',
+                        'Name',
+                        'Class',
+                        'Points',
+                        'Status',
+                        'Late',
+                        'Absent Today',
+                        'Total Absences'
+                    ]],
+                    body: tableData,
+                    styles: { 
+                        font: 'helvetica',
+                        fontStyle: 'normal', 
+                        halign: 'left',
+                        lineColor: [0, 0, 0],
+                        lineWidth: 0.1,
+                        fontSize: 10
+                    },
+                    headStyles: { 
+                        fillColor: [11, 99, 176],
+                        textColor: [255, 255, 255],
+                        halign: 'left',
+                        fontStyle: 'bold'
+                    },
+                    margin: { left: 10, right: 10 },
+                    theme: 'grid'
+                });
+                
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.text(`Page ${i} of ${pageCount}`, 105, doc.internal.pageSize.height - 10, { align: 'center' });
+                }
+                
+                doc.save(`Attendance_Report_${getCurrentDate()}.pdf`);
+                alert('Report exported successfully!');
+            } catch (error) {
+                console.error('Error exporting PDF:', error);
+                alert('An error occurred while exporting the report. Please try again.');
+            }
+        }
+
+        function exportMonthlyPDF() {
+            try {
+                const data = getData();
+                const cls = document.getElementById("report-class").value;
+                const mon = document.getElementById("report-month").value;
+                
+                if(!cls || !mon) {
+                    alert('Select class and month first');
+                    return;
+                }
+                
+                const monthLog = (data.monthlyLogs && data.monthlyLogs[cls] && data.monthlyLogs[cls][mon]) || {};
+                const days = new Date(mon.split('-')[0], mon.split('-')[1], 0).getDate();
+                const students = data.students.filter(s => s.class === cls);
+                
+                if (students.length === 0) {
+                    alert('No data available for the selected class in this month');
+                    return;
+                }
+                
+                const doc = new jsPDF('landscape');
+                
+                doc.setFontSize(18);
+                doc.setTextColor(11, 99, 176);
+                const monthName = new Date(mon + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                doc.text('Monthly Attendance Report', 145, 20, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Class: ${cls}`, 20, 30);
+                doc.text(`Month: ${monthName}`, 20, 40);
+                
+                const tableData = [];
+                const headers = ['Name'];
+                
+                for(let d=1; d<=days; d++) {
+                    headers.push(d.toString());
+                }
+                
+                students.forEach(s => {
+                    const row = [s.name];
+                    for(let d=1; d<=days; d++) {
+                        const dayStr = String(d);
+                        const status = (monthLog[dayStr] && monthLog[dayStr][s.id]) || '';
+                        row.push(status);
+                    }
+                    tableData.push(row);
+                });
+                
+                doc.autoTable({
+                    startY: 50,
+                    head: [headers],
+                    body: tableData,
+                    styles: { 
+                        font: 'helvetica',
+                        fontStyle: 'normal', 
+                        halign: 'left', 
+                        fontSize: 8,
+                        lineColor: [0, 0, 0],
+                        lineWidth: 0.1
+                    },
+                    headStyles: { 
+                        fillColor: [11, 99, 176],
+                        textColor: [255, 255, 255],
+                        halign: 'left',
+                        fontSize: 8,
+                        fontStyle: 'bold'
+                    },
+                    margin: { left: 10, right: 10 },
+                    theme: 'grid'
+                });
+                
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.text(`Page ${i} of ${pageCount}`, 145, doc.internal.pageSize.height - 10, { align: 'center' });
+                }
+                
+                doc.save(`Monthly_Attendance_Report_${cls}_${mon}.pdf`);
+                alert('Monthly report exported successfully!');
+            } catch (error) {
+                console.error('Error exporting monthly PDF:', error);
+                alert('An error occurred while exporting the monthly report. Please try again.');
+            }
+        }
+
+        function exportBehaviorReportPDF() {
+            try {
+                const studentId = parseInt(document.getElementById("behavior-report-student").value);
+                const data = getData();
+                const student = data.students.find(s => s.id === studentId);
+                
+                if (!student) {
+                    alert('Select a student first');
+                    return;
+                }
+                
+                const studentBehaviors = data.behaviors.filter(b => b.studentId === studentId);
+                
+                const doc = new jsPDF();
+                
+                doc.setFontSize(18);
+                doc.setTextColor(11, 99, 176);
+                doc.text('Student Behavior Report', 105, 20, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Name: ${student.name}`, 20, 40);
+                doc.text(`Class: ${student.class}`, 20, 50);
+                doc.text(`Current Points: ${student.points}`, 20, 60);
+                doc.text(`Total Absence Days: ${student.totalAbsent || 0}`, 20, 70);
+                doc.text(`Total Late Arrivals: ${student.late || 0}`, 20, 80);
+                
+                let startY = 100;
+                
+                if (studentBehaviors.length > 0) {
+                    const tableData = [];
+                    const recentBehaviors = studentBehaviors.slice(-20).reverse();
+                    
+                    recentBehaviors.forEach(b => {
+                        tableData.push([
+                            b.time,
+                            b.typeText,
+                            b.note || 'No notes'
+                        ]);
+                    });
+                    
+                    doc.setFontSize(14);
+                    doc.text('Behavior Log', 105, 95, { align: 'center' });
+                    
+                    doc.autoTable({
+                        startY: startY,
+                        head: [[
+                            'Date & Time',
+                            'Behavior Type',
+                            'Note'
+                        ]],
+                        body: tableData,
+                        styles: { 
+                            font: 'helvetica',
+                            fontStyle: 'normal', 
+                            halign: 'left',
+                            lineColor: [0, 0, 0],
+                            lineWidth: 0.1,
+                            fontSize: 9
+                        },
+                        headStyles: { 
+                            fillColor: [11, 99, 176],
+                            textColor: [255, 255, 255],
+                            halign: 'left',
+                            fontStyle: 'bold'
+                        },
+                        margin: { left: 10, right: 10 },
+                        theme: 'grid'
+                    });
+                } else {
+                    doc.setFontSize(12);
+                    doc.text('No behavior records for this student', 105, 100, { align: 'center' });
+                }
+                
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(10);
+                    doc.text(`Page ${i} of ${pageCount}`, 105, doc.internal.pageSize.height - 10, { align: 'center' });
+                }
+                
+                doc.save(`Behavior_Report_${student.name}.pdf`);
+                alert('Behavior report exported successfully!');
+            } catch (error) {
+                console.error('Error exporting behavior PDF:', error);
+                alert('An error occurred while exporting the behavior report. Please try again.');
+            }
+        }
+
+        // ========== Enhanced Comprehensive Report ==========
+        function generateComprehensiveReport() {
+            const data = getData();
+            const today = getCurrentDate();
+            
+            let html = `
+                <div class="report-summary-cards">
+                    <div class="report-summary-card">
+                        <h3 id="comprehensive-present">0</h3>
+                        <p>Today's Attendance</p>
+                    </div>
+                    <div class="report-summary-card">
+                        <h3 id="comprehensive-late">0</h3>
+                        <p>Today's Late</p>
+                    </div>
+                    <div class="report-summary-card">
+                        <h3 id="comprehensive-absent">0</h3>
+                        <p>Today's Absence</p>
+                    </div>
+                    <div class="report-summary-card">
+                        <h3 id="comprehensive-warnings">0</h3>
+                        <p>Absence Warnings</p>
+                    </div>
+                </div>
+            `;
+            
+            let present = 0, late = 0, absent = 0, warnings = 0;
+            
+            data.students.forEach(s => {
+                if (s.present) present++;
+                late += (s.late || 0);
+                absent += (s.absent || 0);
+                if (s.totalAbsent >= 10) warnings++;
+            });
+            
+            document.getElementById("comprehensive-present").textContent = present;
+            document.getElementById("comprehensive-late").textContent = late;
+            document.getElementById("comprehensive-absent").textContent = absent;
+            document.getElementById("comprehensive-warnings").textContent = warnings;
+            
+            data.classes.forEach(c => {
+                const classStudents = data.students.filter(s => s.class === c.id);
+                const classPresent = classStudents.filter(s => s.present).length;
+                const classLate = classStudents.reduce((sum, s) => sum + (s.late || 0), 0);
+                const classAbsent = classStudents.reduce((sum, s) => sum + (s.absent || 0), 0);
+                
+                html += `
+                    <div class="class-report">
+                        <h4>${c.name}</h4>
+                        <div class="small" style="margin-bottom: 10px;">
+                            <strong>Total Students:</strong> ${classStudents.length} | 
+                            <strong>Present:</strong> ${classPresent} | 
+                            <strong>Late:</strong> ${classLate} | 
+                            <strong>Absent:</strong> ${classAbsent}
+                        </div>
+                `;
+                
+                if (classAbsent > 0) {
+                    html += `
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Parent Phone</th>
+                                    <th>Total Absences</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    classStudents.forEach(s => {
+                        if (s.absent > 0) {
+                            html += `
+                                <tr>
+                                    <td class="english-name">${s.name}</td>
+                                    <td>${s.phone || 'Not available'}</td>
+                                    <td>${s.totalAbsent || 0}</td>
+                                </tr>
+                            `;
+                        }
+                    });
+                    
+                    html += `
+                            </tbody>
+                        </table>
+                    `;
+                } else {
+                    html += `<p class="text-success">No absences in this class today</p>`;
+                }
+                
+                html += `</div>`;
+            });
+            
+            document.getElementById("comprehensive-report").innerHTML = html;
+        }
+
+        function exportComprehensiveReportPDF() {
+            try {
+                const reportElement = document.getElementById('comprehensive-report');
+                
+                html2canvas(reportElement, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    
+                    const imgWidth = 210;
+                    const pageHeight = 295;
+                    const imgHeight = canvas.height * imgWidth / canvas.width;
+                    let heightLeft = imgHeight;
+                    let position = 0;
+                    
+                    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                    
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+                    
+                    pdf.save(`Comprehensive_Report_${getCurrentDate()}.pdf`);
+                    alert('Comprehensive report exported successfully!');
+                });
+            } catch (error) {
+                console.error('Error exporting comprehensive PDF:', error);
+                alert('An error occurred while exporting the comprehensive report. Please try again.');
+            }
+        }
+
+        // ========== Classes Management Functions ==========
+        function renderClassesPanel(data) {
+            const classesList = document.getElementById("classes-list");
+            classesList.innerHTML = "";
+            
+            data.classes.forEach(c => {
+                const classDiv = document.createElement("div");
+                classDiv.className = "student-row";
+                classDiv.innerHTML = `
+                    <div>
+                        <div class="student-name">${c.name}</div>
+                        <div class="small">${c.id} • ${data.students.filter(s => s.class === c.id).length} students</div>
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="big-btn action-green arabic-btn" onclick="openAddStudentModal('${c.id}')">إضافة طالب</button>
+                        <button class="secondary big-btn arabic-btn" onclick="openEditClassModal('${c.id}')">تعديل</button>
+                    </div>
+                `;
+                classesList.appendChild(classDiv);
+            });
+            
+            const classStudents = document.getElementById("class-students");
+            classStudents.innerHTML = "";
+            
+            if (data.classes.length > 0) {
+                const firstClass = data.classes[0].id;
+                const students = data.students.filter(s => s.class === firstClass);
+                
+                students.forEach(s => {
+                    const studentDiv = document.createElement("div");
+                    studentDiv.className = "student-row";
+                    studentDiv.innerHTML = `
+                        <div>
+                            <div class="student-name english-name">${s.name}</div>
+                            <div class="small">Points: ${s.points} • Late: ${s.late} • Absent: ${s.absent} • Total Absences: ${s.totalAbsent || 0}</div>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="secondary big-btn arabic-btn" onclick="openEditModal(${s.id})">تعديل</button>
+                        </div>
+                    `;
+                    classStudents.appendChild(studentDiv);
+                });
+            }
+        }
+
+        function openAddClassModal() {
+            editClassId = null;
+            document.getElementById('modal-class-title').innerText = 'Add Class';
+            document.getElementById('mc-name').value = '';
+            document.getElementById('mc-id').value = '';
+            document.getElementById('delete-class-block').style.display = 'none';
+            openClassModal();
+        }
+
+        function openEditClassModal(id) {
+            const data = getData();
+            const c = data.classes.find(x => x.id === id);
+            if (!c) return alert('Class not found');
+            editClassId = id;
+            document.getElementById('modal-class-title').innerText = 'Edit Class';
+            document.getElementById('mc-name').value = c.name;
+            document.getElementById('mc-id').value = c.id;
+            document.getElementById('delete-class-block').style.display = 'flex';
+            openClassModal();
+        }
+
+        function openClassModal() {
+            document.getElementById('modal-class').classList.add('open');
+        }
+
+        function closeClassModal() {
+            document.getElementById('modal-class').classList.remove('open');
+        }
+
+        function saveClassModal() {
+            const name = document.getElementById('mc-name').value.trim();
+            const id = document.getElementById('mc-id').value.trim();
+            if (!name || !id) return alert('Enter class name and ID');
+            const data = getData();
+            if (editClassId) {
+                const c = data.classes.find(x => x.id === editClassId);
+                c.name = name;
+                c.id = id;
+                data.students.forEach(s => {
+                    if (s.class === editClassId) {
+                        s.class = id;
+                    }
+                });
+            } else {
+                if (data.classes.find(x => x.id === id)) {
+                    return alert('Class ID already exists');
+                }
+                data.classes.push({ id, name });
+            }
+            saveData(data);
+            closeClassModal();
+            alert('Saved successfully');
+        }
+
+        function deleteClass() {
+            if (!confirm('Do you want to delete this class? All students in this class will be deleted.')) return;
+            const data = getData();
+            data.students = data.students.filter(s => s.class !== editClassId);
+            data.classes = data.classes.filter(c => c.id !== editClassId);
+            saveData(data);
+            closeClassModal();
+            alert('Class deleted');
+        }
+
+        // ========== Student Management Functions ==========
+        function openAddModal(){ 
+            editId = null; 
+            document.getElementById('modal-title').innerText='Add Student'; 
+            document.getElementById('m-name').value=''; 
+            document.getElementById('m-arabic-name').value=''; 
+            
+            const classSelect = document.getElementById("m-class");
+            classSelect.innerHTML = "";
+            const data = getData();
+            data.classes.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.id;
+                opt.text = c.name;
+                classSelect.appendChild(opt);
+            });
+            
+            document.getElementById('m-phone').value=''; 
+            document.getElementById('delete-block').style.display='none'; 
+            openModal(); 
+        } 
+
+        function openAddStudentModal(classId) {
+            openAddModal();
+            if (classId) {
+                document.getElementById('m-class').value = classId;
+            }
+        }
+
+        function openEditModal(id){ 
+            const data = getData(); 
+            const s = data.students.find(x=>x.id===id); 
+            if(!s) return alert('Student not found'); 
+            editId = id; 
+            document.getElementById('modal-title').innerText='Edit Student'; 
+            document.getElementById('m-name').value=s.name; 
+            document.getElementById('m-arabic-name').value=s.arabicName || ''; 
+            
+            const classSelect = document.getElementById("m-class");
+            classSelect.innerHTML = "";
+            data.classes.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.id;
+                opt.text = c.name;
+                if (c.id === s.class) opt.selected = true;
+                classSelect.appendChild(opt);
+            });
+            
+            document.getElementById('m-phone').value=s.phone || ''; 
+            document.getElementById('delete-block').style.display='flex'; 
+            openModal(); 
+        } 
+
+        function openModal(){ 
+            document.getElementById('modal').classList.add('open'); 
+        } 
+
+        function closeModal(){ 
+            document.getElementById('modal').classList.remove('open'); 
+        } 
+
+        function saveModal(){ 
+            const name = document.getElementById('m-name').value.trim(); 
+            const arabicName = document.getElementById('m-arabic-name').value.trim(); 
+            const cls = document.getElementById('m-class').value; 
+            const phone = document.getElementById('m-phone').value.trim(); 
+            if(!name) return alert('Enter student name'); 
+            
+            if (phone && !isValidPhone(phone)) {
+                return alert('Phone number is invalid. Must start with +961 followed by 8 digits (example: +96170123456)');
+            }
+            
+            const data = getData(); 
+            if(editId){ 
+                const s = data.students.find(x=>x.id===editId); 
+                s.name = name; 
+                s.arabicName = arabicName;
+                s.class = cls; 
+                s.phone = phone; 
+            } else { 
+                const newId = (data.students[data.students.length-1]?.id || 0) + 1; 
+                data.students.push({
+                    id:newId, 
+                    name:name, 
+                    arabicName: arabicName,
+                    class:cls, 
+                    phone:phone, 
+                    points:20, 
+                    present:false, 
+                    late:0, 
+                    absent:0, 
+                    totalAbsent:0, 
+                    attendanceDate: null, 
+                    lastAbsentDate: null
+                }); 
+            } 
+            saveData(data); 
+            closeModal(); 
+            alert('Saved successfully'); 
+        } 
+
+        function deleteStudent(){ 
+            if(!confirm('Do you want to permanently delete this student?')) return; 
+            const data = getData(); 
+            data.students = data.students.filter(s=>s.id!==editId); 
+            for(const cls in data.monthlyLogs || {}){ 
+                for(const mon in data.monthlyLogs[cls] || {}){ 
+                    for(const day in data.monthlyLogs[cls][mon] || {}){ 
+                        delete data.monthlyLogs[cls][mon][day][editId]; 
+                    } 
+                } 
+            } 
+            saveData(data); 
+            closeModal(); 
+            alert('Student deleted'); 
+        } 
+
+        // ========== Attendance & Behavior Functions ==========
+        function setAttendance(id, status){ 
+            const data = getData(); 
+            const s = data.students.find(x=>x.id===id); 
+            if(!s) return; 
+            
+            const today = getCurrentDate();
+            
+            s.present = false;
+            s.late = 0;
+            s.absent = 0;
+            
+            if(status==='present'){ 
+                s.present = true; 
+            } else if(status==='late'){ 
+                s.late = 1; 
+            } else if(status==='absent'){ 
+                s.absent = 1; 
+                
+                if (s.lastAbsentDate !== today) {
+                    s.totalAbsent = (s.totalAbsent || 0) + 1;
+                    s.lastAbsentDate = today;
+                    
+                    if (s.totalAbsent >= 10) {
+                        alert(`Warning: Student ${s.name} has exceeded 10 absence days!`);
+                    }
+                }
+            } 
+            
+            s.attendanceDate = today;
+            saveData(data); 
+        } 
+
+        function markAllPresent(){ 
+            const data = getData(); 
+            const selectedClass = document.getElementById("class-select").value;
+            const today = getCurrentDate();
+            
+            data.students.filter(s => s.class === selectedClass).forEach(s=>{ 
+                s.present = true; 
+                s.late = 0; 
+                s.absent = 0; 
+                s.attendanceDate = today;
+            }); 
+            saveData(data); 
+            alert('All students marked as present successfully.'); 
+        } 
+
+        function saveAttendance(){ 
+            const data = getData(); 
+            const today = getCurrentDate();
+            saveDayToMonthly(today); 
+            data.lastDate = today; 
+            saveData(data); 
+            alert('Daily attendance saved.'); 
+        } 
+
+        function addBehavior(){ 
+            const sid = parseInt(document.getElementById("behavior-student").value); 
+            const type = document.getElementById("behavior-type").value; 
+            const note = document.getElementById("behavior-note").value.trim(); 
+            const data = getData(); 
+            const s = data.students.find(x=>x.id===sid); 
+            if(!s) return alert('Select a student'); 
+            
+            const oldPoints = s.points;
+            
+            if(type==='positive'){ 
+                s.points = Math.min(20, s.points + 2);
+            } else if(type==='misconduct'){ 
+                s.points = Math.max(0, s.points - 2); 
+            }
+            
+            addBehaviorRecord(s, type, note); 
+            saveData(data); 
+            
+            if (s.points <= 5 && oldPoints > 5) {
+                alert(`Alert: Student ${s.name} points are now ${s.points}. Please notify the parent.`);
+            }
+            
+            document.getElementById("behavior-note").value=''; 
+            alert('Behavior recorded.'); 
+        } 
+
+        function addBehaviorRecord(s, type, note){ 
+            const data = getData(); 
+            data.behaviors.push({ 
+                studentId: s.id, 
+                studentName: s.name, 
+                type: type, 
+                typeText: type==='positive' ? 'Positive Behavior' : 'Misconduct', 
+                note: note, 
+                time: new Date().toLocaleString('en-US') 
+            }); 
+            saveData(data); 
+        } 
+
+        // ========== Reports Functions ==========
+        function exportReport(){ 
+            const data = getData(); 
+            const today = getCurrentDate();
+            let csv = 'ID,Name,Class,Points,Late,Absent,Total Absences\n'; 
+            data.students.forEach(s=>{ 
+                csv += `${s.id},"${s.name}",${s.class},${s.points||20},${s.late||0},${s.absent||0},${s.totalAbsent||0}\n`; 
+            }); 
+            const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'}); 
+            const url = URL.createObjectURL(blob); 
+            const a = document.createElement('a'); 
+            a.href = url; 
+            a.download = 'Attendance_Report_' + today + '.csv'; 
+            a.click(); 
+            URL.revokeObjectURL(url); 
+        } 
+
+        function exportMonthCSV(){ 
+            const data = getData(); 
+            const cls = document.getElementById("report-class").value; 
+            const mon = document.getElementById("report-month").value; 
+            if(!cls || !mon) return alert('Select class and month first'); 
+            const monthLog = (data.monthlyLogs && data.monthlyLogs[cls] && data.monthlyLogs[cls][mon]) || {}; 
+            const days = new Date(mon.split('-')[0], mon.split('-')[1], 0).getDate(); 
+            let csv = 'ID,Name'; 
+            for(let d=1; d<=days; d++) csv += `,${d}`; 
+            csv += '\n'; 
+            data.students.filter(s=>s.class===cls).forEach(s=>{ 
+                csv += `${s.id},"${s.name}"`; 
+                for(let d=1; d<=days; d++){ 
+                    const dayStr = String(d); 
+                    const status = (monthLog[dayStr] && monthLog[dayStr][s.id]) || ''; 
+                    csv += `,${status}`; 
+                } 
+                csv += '\n'; 
+            }); 
+            const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'}); 
+            const url = URL.createObjectURL(blob); 
+            const a = document.createElement('a'); 
+            a.href = url; 
+            a.download = `Monthly_Attendance_${cls}_${mon}.csv`; 
+            a.click(); 
+            URL.revokeObjectURL(url); 
+        } 
+
+        function renderMonthlyTable(){ 
+            const data = getData(); 
+            const cls = document.getElementById("report-class").value; 
+            const mon = document.getElementById("report-month").value; 
+            if(!cls || !mon) return alert('Select class and month first'); 
+            const monthLog = (data.monthlyLogs && data.monthlyLogs[cls] && data.monthlyLogs[cls][mon]) || {}; 
+            const days = new Date(mon.split('-')[0], mon.split('-')[1], 0).getDate(); 
+            const students = data.students.filter(s=>s.class===cls); 
+            let html = '<table style="width:100%;border-collapse:collapse;"><thead><tr><th>Name</th>'; 
+            for(let d=1; d<=days; d++) html += `<th>${d}</th>`; 
+            html += '</tr></thead><tbody>'; 
+            students.forEach(s=>{ 
+                html += `<tr><td class="english-name">${s.name}</td>`; 
+                for(let d=1; d<=days; d++){ 
+                    const dayStr = String(d); 
+                    const status = (monthLog[dayStr] && monthLog[dayStr][s.id]) || ''; 
+                    html += `<td style="text-align:center">${status}</td>`; 
+                } 
+                html += '</tr>'; 
+            }); 
+            html += '</tbody></table>'; 
+            document.getElementById("monthly-table").innerHTML = html; 
+        } 
+
+        function generateBehaviorReport() {
+            const studentId = parseInt(document.getElementById("behavior-report-student").value);
+            const data = getData();
+            const student = data.students.find(s => s.id === studentId);
+            
+            if (!student) {
+                alert('Select a student first');
+                return;
+            }
+            
+            const studentBehaviors = data.behaviors.filter(b => b.studentId === studentId);
+            
+            let html = `
+                <h4>Student Behavior Report: ${student.name}</h4>
+                <div class="small">Class: ${student.class} | Current Points: ${student.points}</div>
+                <div style="margin-top:10px;">
+                    <div class="small">Total Absence Days: ${student.totalAbsent || 0}</div>
+                    <div class="small">Total Late Arrivals: ${student.late || 0}</div>
+                </div>
+            `;
+            
+            if (studentBehaviors.length > 0) {
+                html += '<h5 style="margin-top:15px;">Behavior Log:</h5><table style="width:100%;border-collapse:collapse;"><thead><tr><th>Date</th><th>Behavior Type</th><th>Note</th></tr></thead><tbody>';
+                
+                studentBehaviors.slice(-20).reverse().forEach(b => {
+                    html += `<tr>
+                        <td>${b.time}</td>
+                        <td>${b.typeText}</td>
+                        <td>${b.note || ''}</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+            } else {
+                html += '<div class="small" style="margin-top:15px; text-align:center;">No behavior records for this student</div>';
+            }
+            
+            document.getElementById("behavior-report").innerHTML = html;
+        }
+
+        // ========== Backup Functions ==========
+        function updateBackupStats() {
+            const data = getData();
+            document.getElementById("backup-classes-count").textContent = data.classes.length;
+            document.getElementById("backup-students-count").textContent = data.students.length;
+            
+            let recordsCount = 0;
+            for (const cls in data.monthlyLogs) {
+                for (const month in data.monthlyLogs[cls]) {
+                    for (const day in data.monthlyLogs[cls][month]) {
+                        recordsCount++;
+                    }
+                }
+            }
+            document.getElementById("backup-records-count").textContent = recordsCount;
+        }
+
+        function exportBackup() {
+            const data = getData();
+            const backupData = {
+                ...data,
+                backupDate: new Date().toISOString(),
+                version: "v10"
+            };
+            
+            const dataStr = JSON.stringify(backupData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `backup_smart_discipline_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            alert('Data exported successfully');
+        }
+
+        function importBackup() {
+            const fileInput = document.getElementById('import-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file to import');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backupData = JSON.parse(e.target.result);
+                    
+                    if (confirm('Are you sure you want to import data? All current data will be replaced.')) {
+                        // Keep only essential data
+                        const data = {
+                            classes: backupData.classes || [],
+                            students: backupData.students || [],
+                            behaviors: backupData.behaviors || [],
+                            messages: backupData.messages || [],
+                            monthlyLogs: backupData.monthlyLogs || {},
+                            lastDate: backupData.lastDate || getCurrentDate()
+                        };
+                        
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                        renderAll();
+                        alert('Data imported successfully');
+                        fileInput.value = '';
+                        document.getElementById('import-data').disabled = true;
+                    }
+                } catch (error) {
+                    alert('Error reading file. Please make sure the file is correct.');
+                    console.error('Error importing data:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        // ========== Additional Functions ==========
+        function showPanel(id){ 
+            document.querySelectorAll('.panel').forEach(p=>p.style.display='none'); 
+            document.getElementById(id).style.display='block'; 
+            
+            if (id === 'classes') {
+                const data = getData();
+                renderClassesPanel(data);
+            } else if (id === 'parents') {
+                updateSingleStudentSelect(getData());
+            } else if (id === 'reports') {
+                const behaviorReportStudent = document.getElementById("behavior-report-student");
+                behaviorReportStudent.innerHTML = "";
+                const data = getData();
+                data.students.forEach(s=>{ 
+                    const opt = document.createElement("option"); 
+                    opt.value = s.id; 
+                    opt.text = `${s.name} • ${s.class}`; 
+                    behaviorReportStudent.appendChild(opt);
+                });
+                generateComprehensiveReport();
+            } else if (id === 'backup') {
+                updateBackupStats();
+                document.getElementById('import-file').addEventListener('change', function() {
+                    document.getElementById('import-data').disabled = !this.files.length;
+                });
+            }
+        } 
+
+        function searchStudent(){ 
+            const q = document.getElementById("search").value.trim(); 
+            if(!q){ 
+                renderAll(); 
+                return; 
+            } 
+            const data = getData(); 
+            const list = document.getElementById("students-by-class"); 
+            list.innerHTML = ""; 
+            
+            const filteredStudents = data.students.filter(s=>s.name.toLowerCase().includes(q.toLowerCase()));
+            
+            if (filteredStudents.length === 0) {
+                list.innerHTML = '<div class="small" style="text-align:center;padding:20px;">No results found</div>';
+                return;
+            }
+            
+            const studentsByClass = {};
+            filteredStudents.forEach(s => {
+                if (!studentsByClass[s.class]) {
+                    studentsByClass[s.class] = [];
+                }
+                studentsByClass[s.class].push(s);
+            });
+            
+            Object.keys(studentsByClass).forEach(classId => {
+                const classSection = document.createElement("div");
+                classSection.className = "class-section";
+                
+                const classHeader = document.createElement("div");
+                classHeader.className = "class-header";
+                classHeader.innerText = data.classes.find(c => c.id === classId)?.name || classId;
+                classSection.appendChild(classHeader);
+                
+                const studentsContainer = document.createElement("div");
+                studentsContainer.className = "class-students";
+                
+                studentsByClass[classId].forEach(s => {
+                    const today = getCurrentDate();
+                    const isAttendanceRecorded = s.attendanceDate === today;
+                    
+                    const studentRow = document.createElement("div");
+                    studentRow.className = "student-row";
+                    studentRow.innerHTML = `
+                        <div>
+                            <div class="student-name english-name">${s.name}</div>
+                            <div class="small">Points: ${s.points} • Late: ${s.late} • Absent: ${s.absent} • Total Absences: ${s.totalAbsent || 0}</div>
+                            ${isAttendanceRecorded ? '<div class="small" style="color: var(--red);">Attendance recorded today</div>' : ''}
+                        </div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="big-btn action-green arabic-btn" onclick="setAttendance(${s.id}, 'present')">${isAttendanceRecorded && s.present ? 'تعديل حاضر' : 'حاضر'}</button>
+                            <button class="big-btn action-yellow arabic-btn" onclick="setAttendance(${s.id}, 'late')">${isAttendanceRecorded && s.late > 0 ? 'تعديل متأخر' : 'متأخر'}</button>
+                            <button class="big-btn action-red arabic-btn" onclick="setAttendance(${s.id}, 'absent')">${isAttendanceRecorded && s.absent > 0 ? 'تعديل غائب' : 'غائب'}</button>
+                            <button class="secondary big-btn arabic-btn" onclick="openEditModal(${s.id})">تعديل</button>
+                        </div>
+                    `;
+                    studentsContainer.appendChild(studentRow);
+                });
+                
+                classSection.appendChild(studentsContainer);
+                list.appendChild(classSection);
+            });
+        } 
+
+        function searchStudentSidebar(){ 
+            const q = document.getElementById("search2").value.trim(); 
+            if(!q){ 
+                renderAll(); 
+                return; 
+            } 
+            searchStudent();
+        } 
+
+        function softReset(){ 
+            if(!confirm('Do you want to reset today\'s data (today will be saved in monthly log)?')) return; 
+            const data = getData(); 
+            const today = getCurrentDate();
+            saveDayToMonthly(today); 
+            data.students.forEach(s => { 
+                s.present = false; 
+                s.late = 0; 
+                s.absent = 0; 
+                s.attendanceDate = null;
+            }); 
+            data.behaviors = []; 
+            data.messages = []; 
+            data.lastDate = today; 
+            saveData(data); 
+            alert('Today\'s data has been reset and saved to monthly log.'); 
+        } 
+
+        function hardReset(){ 
+            if(!confirm('All data (students and records) will be deleted. Do you want to continue?')) return; 
+            localStorage.removeItem(STORAGE_KEY); 
+            location.reload(); 
+        } 
+
+        function clearMonthlyLogs(){ 
+            if(!confirm('Do you want to clear monthly logs?')) return; 
+            const data = getData(); 
+            data.monthlyLogs = {}; 
+            saveData(data); 
+            alert('Monthly logs cleared.'); 
+        } 
+
+        function loadStudents() {
+            renderAll();
+        }
+
+        // ========== System Initialization ==========
+        dailyRolloverIfNeeded(); 
+        renderAll(); 
+        showPanel('dashboard');
+        
+        document.getElementById('import-file').addEventListener('change', function() {
+            document.getElementById('import-data').disabled = !this.files.length;
+        });
+    </script>
+</body>
+</html>
